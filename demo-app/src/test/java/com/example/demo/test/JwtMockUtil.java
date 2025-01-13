@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.test;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;

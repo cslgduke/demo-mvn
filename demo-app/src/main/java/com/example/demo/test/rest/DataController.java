@@ -1,4 +1,4 @@
-package com.example.demo.rest;
+package com.example.demo.test.rest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -11,11 +11,11 @@ import java.util.UUID;
 /**
  * @author i565244
  */
-@RequestMapping(value = {"/common"})
+@RequestMapping(value = {"/data"})
 @Validated
 @RestController
 @Slf4j
-public class CommonController {
+public class DataController {
 
 
     @RequestMapping("/uuid")
