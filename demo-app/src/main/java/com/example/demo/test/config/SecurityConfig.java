@@ -2,6 +2,7 @@ package com.example.demo.test.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,21 +23,60 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasAuthority;
+
 /**
  * @author i565244
  */
 @Configuration
 @EnableWebSecurity
+//When you use this annotation, it sets up a comprehensive security filter chain
+//eg: CsrfFilter,AuthorizationFilter,BasicAuthenticationFilter,SecurityContextPersistenceFilter,LogoutFilter,UsernamePasswordAuthenticationFilter
 public class SecurityConfig {
+
+    //by default,see WebSecurityEnablerConfiguration,all the requests will be  authenticated
+    //request will receive 401 if not authenticated
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(authorize ->
+                        authorize.requestMatchers(HttpMethod.POST,"/common/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/common/**").permitAll()// Allow all requests with prefix "common" without authentication
+//                                .requestMatchers("/data/**").hasAnyAuthority("ADMIN")
+                                .anyRequest().authenticated()
+                //other requset eg. /data/** will be authenticated , if not authenticated, will receive 403
+                );
+
+        http.formLogin(Customizer.withDefaults());
+        //enable basic authentication
+        http.httpBasic(Customizer.withDefaults());
+        //UserDetailsServiceAutoConfiguration  and authenticationProvider can effect at the same time
+        http.authenticationProvider(this.buildAuthenticationProvider());
+
+        //by default, csrf is enabled, all post request will be checked
+        //disable csrf for all requests , whiteSource scan will alert issue
+//        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable());
+
+        //disable csrf for specific requests
+        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/common/**"));
+
+        //enable bearer token
+        http.oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
+        );
+        return http.build();
+    }
+
+
+//    @Bean
+    public SecurityFilterChain securityFilterChain2(HttpSecurity http) throws Exception {
 //        http.authorizeHttpRequests(authorize ->
 //                        authorize.anyRequest().permitAll()  // Allow all requests without authentication
 //                );
 
-//        http.requestMatchers(HttpMethod.GET, new String[]{"/actuator/**"})).hasAuthority("DevOps");
 
 //        http.authorizeHttpRequests(authorize ->
 //                authorize.requestMatchers("/common/**").hasAnyAuthority("COMMON")
@@ -57,15 +97,14 @@ public class SecurityConfig {
         });
 
 
-        //UserDetailsServiceAutoConfiguration  and authenticationProvider can effect at the same time
+
         http.authenticationProvider(this.buildAuthenticationProvider());
 
 
 
 //        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable());
 
-        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/data/**"));
-      
+
 
 //        http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
         http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
@@ -118,8 +157,8 @@ public class SecurityConfig {
     }
 
     //jku
-    private final static String jwkSetUrl = "https://dave-test.cslgduke.com/oauth/token";
+//    private final static String jwkSetUrl = "https://dave-test.cslgduke.com/oauth/token";
 
-//    private final static String jwkSetUrl = "https://dave-test-suu47312.authentication.us21.hana.ondemand.com/token_keys";
+    private final static String jwkSetUrl = "https://dave-test-suu47312.authentication.us21.hana.ondemand.com/token_keys";
 
 }

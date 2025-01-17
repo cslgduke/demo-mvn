@@ -29,8 +29,8 @@
     </root>
 
 
-<!--    <logger name="org.springframework" level="TRACE">-->
-<!--        <appender-ref ref="console" />-->
-<!--    </logger>-->
+    <logger name="org.springframework" level="TRACE">
+        <appender-ref ref="console" />
+    </logger>
 
 </configuration>
