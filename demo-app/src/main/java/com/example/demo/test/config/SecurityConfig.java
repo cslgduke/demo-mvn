@@ -61,7 +61,7 @@ public class SecurityConfig {
         //disable csrf for specific requests
         http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/common/**"));
 
-        //enable bearer token
+        //enable bearer token  BearerTokenAuthenticationFilter
         http.oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt
                         .jwtAuthenticationConverter(jwtAuthenticationConverter())
@@ -71,53 +71,6 @@ public class SecurityConfig {
     }
 
 
-//    @Bean
-    public SecurityFilterChain securityFilterChain2(HttpSecurity http) throws Exception {
-//        http.authorizeHttpRequests(authorize ->
-//                        authorize.anyRequest().permitAll()  // Allow all requests without authentication
-//                );
-
-
-//        http.authorizeHttpRequests(authorize ->
-//                authorize.requestMatchers("/common/**").hasAnyAuthority("COMMON")
-//                        .anyRequest().authenticated());
-
-        http.formLogin(Customizer.withDefaults())
-                .authorizeHttpRequests(urlRegistry ->
-                        urlRegistry
-                                .requestMatchers("/data/**","/common/**").authenticated()
-//                                .requestMatchers("/common/**").authenticated()
-                                .anyRequest().authenticated());
-//        http.httpBasic();
-        http.httpBasic((c) -> {
-            BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
-            entryPoint.setRealmName("Realm");
-            entryPoint.afterPropertiesSet();
-            c.authenticationEntryPoint(entryPoint);
-        });
-
-
-
-        http.authenticationProvider(this.buildAuthenticationProvider());
-
-
-
-//        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable());
-
-
-
-//        http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
-
-
-
-        http.oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                )
-        );
-        return http.build();
-    }
 
     private DaoAuthenticationProvider buildAuthenticationProvider() {
         List<UserDetails> userDetails = new ArrayList();
@@ -142,19 +95,19 @@ public class SecurityConfig {
         return new GrantedAuthorityDefaults(""); // Remove the default "ROLE_" prefix
     }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-
-        //local save publicKey
-//        InputStream inputStream = new ClassPathResource("publicKey.pem").getInputStream();
-//        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-//        X509Certificate certificate = (X509Certificate) certFactory.generateCertificate(inputStream);
-//        RSAPublicKey publicKey = (RSAPublicKey) certificate.getPublicKey();
-//        return NimbusJwtDecoder.withPublicKey(publicKey).build();
-
-        // Use the JWK set URI to create the JwtDecoder
-        return NimbusJwtDecoder.withJwkSetUri(jwkSetUrl).build();
-    }
+//    @Bean
+//    public JwtDecoder jwtDecoder() {
+//
+//        //local save publicKey
+////        InputStream inputStream = new ClassPathResource("publicKey.pem").getInputStream();
+////        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+////        X509Certificate certificate = (X509Certificate) certFactory.generateCertificate(inputStream);
+////        RSAPublicKey publicKey = (RSAPublicKey) certificate.getPublicKey();
+////        return NimbusJwtDecoder.withPublicKey(publicKey).build();
+//
+//        // Use the JWK set URI to create the JwtDecoder
+//        return NimbusJwtDecoder.withJwkSetUri(jwkSetUrl).build();
+//    }
 
     //jku
 //    private final static String jwkSetUrl = "https://dave-test.cslgduke.com/oauth/token";

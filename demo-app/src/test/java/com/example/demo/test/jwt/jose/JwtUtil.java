@@ -1,4 +1,4 @@
-package com.example.demo.test;
+package com.example.demo.test.jwt.jose;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * @author i565244
  */
 @Slf4j
-public class JwtMockUtil {
+public class JwtUtil {
 
     private final static String TENANT_ID_HEADER = "X-Tenant-ID";
     private final static String TENANT_SCHEMA_HEADER = "X-Tenant-Schema";
@@ -70,7 +70,7 @@ public class JwtMockUtil {
 
     public static String mockJwt(List<String> scopes) {
         try {
-            List<String> handledScope = scopes.stream().map(JwtMockUtil::preHandle).collect(Collectors.toList());
+            List<String> handledScope = scopes.stream().map(JwtUtil::preHandle).collect(Collectors.toList());
 
             // Generate an RSA key pair, which will be used for signing and verification of the JWT, wrapped in a JWK
             RsaJsonWebKey rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
